@@ -1,0 +1,26 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: aquamarine;
+}
+
+.upload {
+    background-color: beige;
+}
+
+input {
+    margin: auto;
+    display: block;
+}
+
+.canvas-container {
+    text-align: center;
+}
+
+canvas { 
+    margin: 50px 0 50px 0;
+    background-color: blueviolet;
+}
