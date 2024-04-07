@@ -11,16 +11,27 @@ body {
     background-color: beige;
 }
 
+.download {
+    background-color: aqua;
+}
+
 input {
     margin: auto;
     display: block;
 }
 
-.canvas-container {
-    text-align: center;
+#canvas_container {
+    position: relative;
+    width: max-content;
+    margin: 50px auto 50px auto;
 }
 
-canvas { 
-    margin: 50px 0 50px 0;
+#grid_canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#canvas {
     background-color: blueviolet;
 }

@@ -7,17 +7,20 @@
         <title>Document</title>
     </head>
     <body>  
-
-        <div class="canvas-container">
+        <div id="canvas_container">
             <canvas id="canvas"></canvas>
+            <canvas id="grid_canvas"></canvas>
         </div>
         
-               
         <section class="upload">
-            <input type="file" class="file">
+            <input type="file" id="imageUpload">
+        </section>
+
+        <section class="download">
+            <input type="button" id="downloadBtn" value="Download">
         </section>
           
-        <script src="main.js"></script>
-
+        <script src="scripts/utils.js"></script>
+        <script src="scripts/main.js"></script>
     </body>
 </html>
