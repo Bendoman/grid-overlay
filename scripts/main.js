@@ -19,22 +19,77 @@ canvas.height = maxHeight;
 grid_canvas.width = maxWidth;
 grid_canvas.height = maxHeight;
 
-// Images
+// Image variables
 var uploadedGrid;
 var uploadedImage; 
+
+var ratio;
+var hRatio;
+var vRatio;
+var dWidth;
+var centerShift_x;
+var centerShift_y;
 
 // Elements
 var download = document.getElementById('downloadBtn')
 var imageUploadInput = document.getElementById("imageUpload");
+var originXinput = document.getElementById("gridOriginX");
+var originYinput = document.getElementById("gridOriginY");
+var gapSizeInput = document.getElementById("gridGapSize");
 
 // Grid values
-var lineWeight = 25; 
+var lineWeight = 3; 
 var gridOriginX = 0;
 var gridOriginY = 0; 
+
+var gapSize = 40; 
+var minGapSize = 10;
 
 // Pointer values
 var previousMouseX; 
 var previousMouseY; 
+
+// Settings
+var prevSettingsX = 0;
+var prevSettingsY = 0;
+var prevGapSize = gapSize;
+
+gapSizeInput.value = gapSize;
+originXinput.value = gridOriginX;
+originYinput.value = gridOriginY;
+
+originXinput.addEventListener("change", () => {
+    if(!isNaN(originXinput.value) && originXinput.value != '') {
+        gridOriginX = originXinput.value;
+        prevSettingsX = originXinput.value; 
+
+        grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
+    } else {
+        originXinput.value = prevSettingsX;
+    }
+});
+
+originYinput.addEventListener("change", () => {
+    if(!isNaN(originYinput.value) && originXinput.value != '') {
+        gridOriginY = originYinput.value;
+        prevSettingsY = originYinput.value; 
+
+        grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
+    } else {
+        originYinput.value = prevSettingsY;
+    }
+});
+
+gapSizeInput.addEventListener("change", () => {
+    if(!isNaN(gapSizeInput.value) && gapSizeInput.value >= minGapSize) {
+
+    } else {
+
+    }
+});
+
 
 // Update canvas based on window resize
 var timeout; 
@@ -47,10 +102,10 @@ window.addEventListener("resize", () => {
     grid_canvas.width = maxWidth;
     grid_canvas.height = maxHeight;
 
-    drawGrid(25, gridOriginX, gridOriginY, canvas.width, canvas.height);
+    drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
 
     clearTimeout(timeout);
-    timeout = setTimeout(resizedw, 150);
+    timeout = setTimeout(resizedw, 250);
 });
 
  /* 
@@ -58,23 +113,27 @@ window.addEventListener("resize", () => {
  canvas using the toDataURL method. PNG is the 
  preferred format since it is supported by all browsers
  */
-download.addEventListener('click', () => {
-
+download.addEventListener('click', () => {    
     ctx.drawImage(grid_canvas, 0, 0);
 
-     var dataURL = canvas.toDataURL("image/png");
-     // Create a dummy link text
-     var a = document.createElement('a');
-     // Set the link to the image so that when clicked, the image begins downloading
-     a.href = dataURL
-     // Specify the image filename
-     a.download = 'canvas-download.jpeg';
-     // Click on the link to set off download
-     a.click();
+    ctx.clearRect(0, 0, centerShift_x, canvas.height);
+    ctx.clearRect(centerShift_x + dWidth, 0, canvas.width, canvas.height);
+
+    var dataURL = canvas.toDataURL("image/png");
+    // Create a dummy link text
+    var a = document.createElement('a');
+    // Set the link to the image so that when clicked, the image begins downloading
+    a.href = dataURL
+    // Specify the image filename
+    a.download = 'canvas-download.jpeg';
+    // Click on the link to set off download
+    a.click();
+
+    displayImage(uploadedImage);
  });
 
 var dragActive = false; 
-window.addEventListener("mousedown", (e) => {
+grid_canvas.addEventListener("mousedown", (e) => {
     var mousePos = getCursorPosition(canvas, e);
     previousMouseX = mousePos.x;
     previousMouseY = mousePos.y;
@@ -90,13 +149,14 @@ window.addEventListener("mousemove", (e) => {
     if(!dragActive)
         return; 
 
-    gridOriginX += (previousMouseX - mousePos.x);
-    gridOriginY += (previousMouseX - mousePos.x);
     gridOriginX = mousePos.x;
     gridOriginY = mousePos.y;
+    originXinput.value = gridOriginX;
+    originYinput.value = gridOriginY;
 
     grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawGrid(25, gridOriginX, gridOriginY, canvas.width, canvas.height);
+    drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
+    console.log(gapSize);
 
     previousMouseX = mousePos.x;
     previousMouseY = mousePos.y;
@@ -116,6 +176,8 @@ imageUploadInput.addEventListener("change", () => {
 
 // Creates new image object and sets its source
 function displayImage(image) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     var uploadedImage = new Image();
     uploadedImage.onload = () => {
         drawImageScaled(uploadedImage);
@@ -125,13 +187,12 @@ function displayImage(image) {
 
 // Scales image to correct aspect ratio and centers it
 function drawImageScaled(img) {
-    var canvas = ctx.canvas ;
-    var hRatio = canvas.width  / img.width    ;
-    var vRatio =  canvas.height / img.height  ;
-    var ratio  = Math.min ( hRatio, vRatio );
-    var centerShift_x = ( canvas.width - img.width*ratio ) / 2;
-    var centerShift_y = ( canvas.height - img.height*ratio ) / 2;  
-    
+    hRatio = canvas.width  / img.width;
+    vRatio =  canvas.height / img.height;
+    ratio  = Math.min ( hRatio, vRatio );
+    centerShift_x = ( canvas.width - img.width*ratio ) / 2;
+    centerShift_y = ( canvas.height - img.height*ratio ) / 2;  
+    dWidth = img.width*ratio;
     // Image
     ctx.clearRect(0,0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, 
@@ -146,17 +207,17 @@ function drawImageScaled(img) {
 //  Draws grid based on gap and origin vector
 function drawGrid(gapsize, originX, originY, rectWidth, rectHeight) {
     
-    if(originX > 0)
+    if(originX >= 0)
         originX -= (gapsize*Math.floor(originX / gapsize)) + gapsize;
 
-    if(originY > 0)
+    if(originY >= 0)
         originY -= (gapsize*Math.floor(originY / gapsize)) + gapsize;
     
     var rowX = originX;
     var rowY = originY;   
     
-
-    grid_ctx.lineWidth = 3;
+    
+    grid_ctx.lineWidth = lineWeight;
     grid_ctx.strokeStyle = "lime";
 
     while(rowX < rectWidth) {
