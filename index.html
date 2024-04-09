@@ -14,13 +14,27 @@
         
         <section class="settings"> 
             <label for="gridOriginX">Grid Origin X</label>
-            <input id="gridOriginX" type="text" value="0">
+            <input id="gridOriginX" type="number" value="0">
 
             <label for="gridOriginY">Grid Origin Y</label>
-            <input id="gridOriginY" type="text" value="0">
+            <input id="gridOriginY" type="number" value="0">
 
-            <label for="gridGapSize">Gap size</label>
-            <input id="gridGapSize" type="text">
+            <label for="units">Choose grid units:</label>
+            <select name="units" id="units">
+                <option value="pixels">Pixels</option>
+                <option value="inches">Inches</option>
+                <option value="centimeters">Centimeters</option>
+                <option value="millimeters">Millimeters</option>
+            </select>
+
+            <label for="gridGapSize">Gap Size</label>
+            <input id="gridGapSize" type="number">
+
+            <label for="strokeWeight">Weight</label>
+            <input id="strokeWeight" type="number">
+
+            <label for="colourPicker">Grid Color</label>
+            <input type="color" id="colourPicker" value="#39FF14">
         </section>
 
         <section class="upload">

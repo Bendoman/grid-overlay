@@ -36,6 +36,9 @@ var imageUploadInput = document.getElementById("imageUpload");
 var originXinput = document.getElementById("gridOriginX");
 var originYinput = document.getElementById("gridOriginY");
 var gapSizeInput = document.getElementById("gridGapSize");
+var colourPickerInput = document.getElementById("colourPicker");
+var gapUnitsInput = document.getElementById("units");
+var strokeWeightInput = document.getElementById("strokeWeight");
 
 // Grid values
 var lineWeight = 3; 
@@ -43,7 +46,8 @@ var gridOriginX = 0;
 var gridOriginY = 0; 
 
 var gapSize = 40; 
-var minGapSize = 10;
+var minGapSize = 25;
+var strokeColor = "#39FF14";
 
 // Pointer values
 var previousMouseX; 
@@ -53,11 +57,14 @@ var previousMouseY;
 var prevSettingsX = 0;
 var prevSettingsY = 0;
 var prevGapSize = gapSize;
+var prevLineWeight = lineWeight;
 
 gapSizeInput.value = gapSize;
 originXinput.value = gridOriginX;
 originYinput.value = gridOriginY;
+strokeWeightInput.value = lineWeight;
 
+// Updates grid origin x and y based on text input
 originXinput.addEventListener("change", () => {
     if(!isNaN(originXinput.value) && originXinput.value != '') {
         gridOriginX = originXinput.value;
@@ -82,14 +89,46 @@ originYinput.addEventListener("change", () => {
     }
 });
 
+// Updates gapsize based on text input
 gapSizeInput.addEventListener("change", () => {
     if(!isNaN(gapSizeInput.value) && gapSizeInput.value >= minGapSize) {
+        console.log(parseFloat(gapSizeInput.value));
+        gapSize = parseFloat(gapSizeInput.value);
+        prevGapSize = gapSize;
+
+        grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
 
     } else {
-
+        gapSizeInput.value = prevGapSize;
     }
 });
 
+gapUnitsInput.addEventListener("change", () => {
+    grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
+});
+
+// Sets grid color based on color picker input
+colourPickerInput.addEventListener("change", () => {
+    strokeColor = colourPickerInput.value;
+
+    grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
+});
+
+strokeWeightInput.addEventListener("change", () => {
+    if(!isNaN(strokeWeightInput.value) && strokeWeightInput.value > 0) {
+        lineWeight = parseFloat(strokeWeightInput.value);
+        prevLineWeight = lineWeight;
+
+        grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
+
+    } else {
+        strokeWeightInput.value = prevLineWeight;
+    }
+});
 
 // Update canvas based on window resize
 var timeout; 
@@ -125,7 +164,7 @@ download.addEventListener('click', () => {
     // Set the link to the image so that when clicked, the image begins downloading
     a.href = dataURL
     // Specify the image filename
-    a.download = 'canvas-download.jpeg';
+    a.download = 'canvas-download.png';
     // Click on the link to set off download
     a.click();
 
@@ -149,14 +188,13 @@ window.addEventListener("mousemove", (e) => {
     if(!dragActive)
         return; 
 
-    gridOriginX = mousePos.x;
-    gridOriginY = mousePos.y;
+    gridOriginX = gridOriginX - (previousMouseX - mousePos.x);
+    gridOriginY = gridOriginY - (previousMouseY - mousePos.y);
     originXinput.value = gridOriginX;
     originYinput.value = gridOriginY;
 
     grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
-    console.log(gapSize);
 
     previousMouseX = mousePos.x;
     previousMouseY = mousePos.y;
@@ -207,18 +245,42 @@ function drawImageScaled(img) {
 //  Draws grid based on gap and origin vector
 function drawGrid(gapsize, originX, originY, rectWidth, rectHeight) {
     
+    gapUnit = gapsize;
+    if(gapUnitsInput.value == "pixels") {
+        gapUnit = gapSize;
+        minGapSize = 25;
+    }
+    else if(gapUnitsInput.value == "inches") {
+        gapUnit = gapSize * 96;
+        minGapSize = 0.25;
+    } 
+    else if(gapUnitsInput.value == "centimeters") {
+        gapUnit = gapSize * 38;
+        minGapSize = 1;
+    }
+    else if(gapUnitsInput.value == "millimeters") {
+        gapUnit = gapSize * 3.8;
+        minGapSize = 10;
+    }
+
+    if(gapsize < minGapSize) {
+        gapSize = minGapSize;
+        gapSizeInput.value = minGapSize;
+        drawGrid(gapSize, originX, originY, rectWidth, rectHeight);
+    }
+
     if(originX >= 0)
-        originX -= (gapsize*Math.floor(originX / gapsize)) + gapsize;
+        originX -= (gapUnit*Math.floor(originX / gapUnit)) + gapUnit;
 
     if(originY >= 0)
-        originY -= (gapsize*Math.floor(originY / gapsize)) + gapsize;
+        originY -= (gapUnit*Math.floor(originY / gapUnit)) + gapUnit;
     
     var rowX = originX;
     var rowY = originY;   
     
     
     grid_ctx.lineWidth = lineWeight;
-    grid_ctx.strokeStyle = "lime";
+    grid_ctx.strokeStyle = strokeColor;
 
     while(rowX < rectWidth) {
         grid_ctx.beginPath();
@@ -226,7 +288,7 @@ function drawGrid(gapsize, originX, originY, rectWidth, rectHeight) {
         grid_ctx.lineTo(rowX, rectHeight);
         grid_ctx.stroke(); 
         
-        rowX += gapsize;
+        rowX += gapUnit;
     }
 
     while(rowY < rectHeight) {
@@ -235,7 +297,7 @@ function drawGrid(gapsize, originX, originY, rectWidth, rectHeight) {
         grid_ctx.lineTo(rectWidth, rowY);
         grid_ctx.stroke(); 
         
-        rowY += gapsize;
+        rowY += gapUnit;
     }
 }
 
