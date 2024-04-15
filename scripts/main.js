@@ -13,6 +13,58 @@ canvas.height = maxHeight;
 grid_canvas.width = maxWidth;
 grid_canvas.height = maxHeight;
 
+// #region ( Elements )
+var sidebar = document.getElementById("sidebar");
+var toolbar = document.getElementById("toolbar");
+
+var canvas_container = document.getElementById("canvas_container");
+var background_canvas = document.getElementById("background-canvas");
+
+// Sidebar buttons
+var grid_grab_button = document.getElementById("grid_grab_button");
+var image_grab_button = document.getElementById("image_grab_button");
+
+var lock_toggle_button = document.getElementById("lock_toggle_button");
+var image_upload_button = document.getElementById("image_upload_button");
+
+// Toolbar inputs 
+var unit_selector = document.getElementById("units");
+var gap_width_input = document.getElementById("gap_width_input");
+// #endregion
+
+// #region ( Variables )
+var uploadedImageReference = null;
+var uploadedImageObject = null;
+
+var image_grab_toggle = true;
+var grid_grab_toggle = false; 
+var new_image = true;
+
+var lock_toggle_on = false; 
+var imageOriginX = 0;
+var imageOriginY = 0;
+var previousMouseX = 0;
+var previousMouseY = 0;
+
+var gridOriginX = 0;
+var gridOriginY = 0;
+var imageScaling = 1;
+var imageScalingFactor = 0.25;
+
+// Grid values
+var gapSize = 1; 
+var lineWeight = 1; 
+var showGrid = false; 
+var strokeColor = "#39FF14";
+
+const centimeterMin = 1; 
+const pixelUnitMin = 25; 
+const inchUnitMin = 0.25; 
+const millimeterGapMin = 10; 
+
+// #endregion
+
+// #region ( Event Listeners )
 // Called after timeout to re-draw image
 function redrawImage() {
     displayImage(uploadedImageReference);
@@ -32,6 +84,7 @@ window.addEventListener("resize", () => {
 
     // drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
 
+    toolbar.style.width = canvas.width + "px";
     sidebar.style.height = canvas.height + "px";
     background_canvas.style.width = canvas.width + "px";
     background_canvas.style.height = canvas.height + "px";
@@ -43,43 +96,6 @@ window.addEventListener("resize", () => {
     timeout = setTimeout(redrawImage, 250);
 });
 
-
-// ===== Elements =====
-var sidebar = document.getElementById("sidebar");
-var toolbar = document.getElementById("toolbar");
-
-var canvas_container = document.getElementById("canvas_container");
-var background_canvas = document.getElementById("background-canvas");
-
-// Sidebar buttons
-var grid_grab_button = document.getElementById("grid_grab_button");
-var image_grab_button = document.getElementById("image_grab_button");
-
-var lock_toggle_button = document.getElementById("lock_toggle_button");
-var image_upload_button = document.getElementById("image_upload_button");
-
-// ===== Variables =====
-// #region
-var uploadedImageReference = null;
-var uploadedImageObject = null;
-
-var image_grab_toggle = true;
-var grid_grab_toggle = false; 
-var new_image = true;
-
-var lock_toggle_on = false; 
-var imageOriginX = 0;
-var imageOriginY = 0;
-var previousMouseX = 0;
-var previousMouseY = 0;
-
-var gridOriginX = 0;
-var gridOriginY = 0;
-var imageScaling = 1;
-var imageScalingFactor = 0.25;
-// #endregion
-
-// #region ( Event Listeners)
 var dragActive = false; 
 canvas_container.addEventListener("pointerdown", (e) => {
     var mousePos = getCursorPosition(canvas, e);
@@ -132,7 +148,7 @@ canvas_container.addEventListener("wheel", (e) => {
 });
 // #endregion
 
-//#region ( Sidebar Button Listeners) 
+//#region ( Sidebar/Toolbar Input Listeners ) 
 function image_grab_listener() {
     image_grab_toggle = !image_grab_toggle;
 
@@ -172,7 +188,6 @@ image_upload_button.addEventListener("change", () => {
     imageOriginY = 0;
     imageScaling = 1;
 });
-
 
 function download_image() {
     if(lock_toggle_on) {
@@ -231,7 +246,6 @@ function image_download_listener() {
 
 function grid_toggle_listener() {
     console.log("grid_toggle_listener()");
-    
 }
 
 // TODO Add fullscreen functionality
@@ -270,9 +284,16 @@ function zoom_out_listener() {
 
     console.log("Zoom out");
 }
+
+// Toolbar Inputs
+gap_width_input.addEventListener("change", () => {
+    var value = Math.abs(gap_width_input.value)
+    gapSize = value == 0 ? 1 : value;
+    gap_width_input.value = gapSize;
+});
 //#endregion
 
-// #region ( Image Handling)
+// #region ( Image Handling )
 // Creates new image object and sets its source
 function displayImage(image) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -323,12 +344,74 @@ function drawImageScaled(img) {
 }
 // #endregion
 
+// #region ( Grid Handling )
+//  Draws grid based on gap and origin vector
+function drawGrid(gapsize, originX, originY, rectWidth, rectHeight) {
+    
+    gapUnit = gapsize;
+    if(gapUnitsInput.value == "pixels") {
+        gapUnit = gapSize;
+        minGapSize = 25;
+    }
+    else if(gapUnitsInput.value == "inches") {
+        gapUnit = gapSize * 96;
+        minGapSize = 0.25;
+    } 
+    else if(gapUnitsInput.value == "centimeters") {
+        gapUnit = gapSize * 38;
+        minGapSize = 1;
+    }
+    else if(gapUnitsInput.value == "millimeters") {
+        gapUnit = gapSize * 3.8;
+        minGapSize = 10;
+    }
+
+    if(gapsize < minGapSize) {
+        gapSize = minGapSize;
+        gapSizeInput.value = minGapSize;
+        drawGrid(gapSize, originX, originY, rectWidth, rectHeight);
+    }
+
+    if(originX >= 0)
+        originX -= (gapUnit*Math.floor(originX / gapUnit)) + gapUnit;
+
+    if(originY >= 0)
+        originY -= (gapUnit*Math.floor(originY / gapUnit)) + gapUnit;
+    
+    var rowX = originX;
+    var rowY = originY;   
+    
+    
+    grid_ctx.lineWidth = lineWeight;
+    grid_ctx.strokeStyle = strokeColor;
+
+    while(rowX < rectWidth) {
+        grid_ctx.beginPath();
+        grid_ctx.moveTo(rowX, originY);
+        grid_ctx.lineTo(rowX, rectHeight);
+        grid_ctx.stroke(); 
+        
+        rowX += gapUnit;
+    }
+
+    while(rowY < rectHeight) {
+        grid_ctx.beginPath();
+        grid_ctx.moveTo(originX, rowY);
+        grid_ctx.lineTo(rectWidth, rowY);
+        grid_ctx.stroke(); 
+        
+        rowY += gapUnit;
+    }
+}
+// #endregion
+
 sidebar.style.height = canvas.height + "px";
 
 // Display initial text
 ctx.fillStyle = "white";
 ctx.fillText("Upload Image", (canvas.width / 2) - (ctx.measureText("Upload Image").width / 2), canvas.height/2);
 
-// Set canvas background to inital dimensions
+// Set toolbar and canvas background to inital dimensions
+toolbar.style.width = canvas.width + "px";
 background_canvas.style.width = canvas.width + "px";
 background_canvas.style.height = canvas.height + "px";
