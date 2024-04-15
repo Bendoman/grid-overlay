@@ -1,0 +1,45 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: aquamarine;
+}
+
+.upload {
+    background-color: beige;
+}
+
+.download {
+    background-color: aqua;
+}
+
+#imageUpload, #downloadBtn {
+    margin: auto;
+    display: block;
+}
+
+#canvas_container {
+    position: relative;
+    width: max-content;
+    margin: 50px auto 50px auto;
+}
+
+#grid_canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#canvas {
+    background-color: blueviolet;
+}
+
+.settings {
+    text-align: center;
+}
+
+.settings input {
+    width: 8ch;
+}

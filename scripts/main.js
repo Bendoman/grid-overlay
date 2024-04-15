@@ -1,178 +1,87 @@
-/**
- * For chaing opacity of overlayed grids
- * ctx.globalAlpha = 0.4;
- * 
- */
-
 // Canvas setup
-var canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('canvas'));
+var canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('image_canvas'));
 var grid_canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('grid_canvas'));
 
 var ctx = canvas.getContext("2d");
 var grid_ctx = grid_canvas.getContext("2d");
 
-var maxWidth = vw(75);
-var maxHeight = vh(75);
+var maxWidth = vw(65);
+var maxHeight = vh(65);
 canvas.width = maxWidth;
 canvas.height = maxHeight;
 
 grid_canvas.width = maxWidth;
 grid_canvas.height = maxHeight;
 
-// Image variables
-var uploadedGrid;
-var uploadedImage; 
-
-var ratio;
-var hRatio;
-var vRatio;
-var dWidth;
-var centerShift_x;
-var centerShift_y;
-
-// Elements
-var download = document.getElementById('downloadBtn')
-var imageUploadInput = document.getElementById("imageUpload");
-var originXinput = document.getElementById("gridOriginX");
-var originYinput = document.getElementById("gridOriginY");
-var gapSizeInput = document.getElementById("gridGapSize");
-var colourPickerInput = document.getElementById("colourPicker");
-var gapUnitsInput = document.getElementById("units");
-var strokeWeightInput = document.getElementById("strokeWeight");
-
-// Grid values
-var lineWeight = 3; 
-var gridOriginX = 0;
-var gridOriginY = 0; 
-
-var gapSize = 40; 
-var minGapSize = 25;
-var strokeColor = "#39FF14";
-
-// Pointer values
-var previousMouseX; 
-var previousMouseY; 
-
-// Settings
-var prevSettingsX = 0;
-var prevSettingsY = 0;
-var prevGapSize = gapSize;
-var prevLineWeight = lineWeight;
-
-gapSizeInput.value = gapSize;
-originXinput.value = gridOriginX;
-originYinput.value = gridOriginY;
-strokeWeightInput.value = lineWeight;
-
-// Updates grid origin x and y based on text input
-originXinput.addEventListener("change", () => {
-    if(!isNaN(originXinput.value) && originXinput.value != '') {
-        gridOriginX = originXinput.value;
-        prevSettingsX = originXinput.value; 
-
-        grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
-    } else {
-        originXinput.value = prevSettingsX;
-    }
-});
-
-originYinput.addEventListener("change", () => {
-    if(!isNaN(originYinput.value) && originXinput.value != '') {
-        gridOriginY = originYinput.value;
-        prevSettingsY = originYinput.value; 
-
-        grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
-    } else {
-        originYinput.value = prevSettingsY;
-    }
-});
-
-// Updates gapsize based on text input
-gapSizeInput.addEventListener("change", () => {
-    if(!isNaN(gapSizeInput.value) && gapSizeInput.value >= minGapSize) {
-        console.log(parseFloat(gapSizeInput.value));
-        gapSize = parseFloat(gapSizeInput.value);
-        prevGapSize = gapSize;
-
-        grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
-
-    } else {
-        gapSizeInput.value = prevGapSize;
-    }
-});
-
-gapUnitsInput.addEventListener("change", () => {
-    grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
-});
-
-// Sets grid color based on color picker input
-colourPickerInput.addEventListener("change", () => {
-    strokeColor = colourPickerInput.value;
-
-    grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
-});
-
-strokeWeightInput.addEventListener("change", () => {
-    if(!isNaN(strokeWeightInput.value) && strokeWeightInput.value > 0) {
-        lineWeight = parseFloat(strokeWeightInput.value);
-        prevLineWeight = lineWeight;
-
-        grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
-
-    } else {
-        strokeWeightInput.value = prevLineWeight;
-    }
-});
+// Called after timeout to re-draw image
+function redrawImage() {
+    displayImage(uploadedImageReference);
+    return;
+}
 
 // Update canvas based on window resize
 var timeout; 
 window.addEventListener("resize", () => {
-    var maxWidth = vw(75);
-    var maxHeight = vh(75);
+    var maxWidth = vw(65);
+    var maxHeight = vh(65);
     canvas.width = maxWidth;
     canvas.height = maxHeight;
 
     grid_canvas.width = maxWidth;
     grid_canvas.height = maxHeight;
 
-    drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
+    // drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
+
+    sidebar.style.height = canvas.height + "px";
+    background_canvas.style.width = canvas.width + "px";
+    background_canvas.style.height = canvas.height + "px";
+
+    if(uploadedImageReference == null)
+        return; 
 
     clearTimeout(timeout);
-    timeout = setTimeout(resizedw, 250);
+    timeout = setTimeout(redrawImage, 250);
 });
 
- /* 
- Create a PNG image of the pixels drawn on the 
- canvas using the toDataURL method. PNG is the 
- preferred format since it is supported by all browsers
- */
-download.addEventListener('click', () => {    
-    ctx.drawImage(grid_canvas, 0, 0);
 
-    ctx.clearRect(0, 0, centerShift_x, canvas.height);
-    ctx.clearRect(centerShift_x + dWidth, 0, canvas.width, canvas.height);
+// ===== Elements =====
+var sidebar = document.getElementById("sidebar");
+var toolbar = document.getElementById("toolbar");
 
-    var dataURL = canvas.toDataURL("image/png");
-    // Create a dummy link text
-    var a = document.createElement('a');
-    // Set the link to the image so that when clicked, the image begins downloading
-    a.href = dataURL
-    // Specify the image filename
-    a.download = 'canvas-download.png';
-    // Click on the link to set off download
-    a.click();
+var canvas_container = document.getElementById("canvas_container");
+var background_canvas = document.getElementById("background-canvas");
 
-    displayImage(uploadedImage);
- });
+// Sidebar buttons
+var grid_grab_button = document.getElementById("grid_grab_button");
+var image_grab_button = document.getElementById("image_grab_button");
 
+var lock_toggle_button = document.getElementById("lock_toggle_button");
+var image_upload_button = document.getElementById("image_upload_button");
+
+// ===== Variables =====
+// #region
+var uploadedImageReference = null;
+var uploadedImageObject = null;
+
+var image_grab_toggle = true;
+var grid_grab_toggle = false; 
+var new_image = true;
+
+var lock_toggle_on = false; 
+var imageOriginX = 0;
+var imageOriginY = 0;
+var previousMouseX = 0;
+var previousMouseY = 0;
+
+var gridOriginX = 0;
+var gridOriginY = 0;
+var imageScaling = 1;
+var imageScalingFactor = 0.25;
+// #endregion
+
+// #region ( Event Listeners)
 var dragActive = false; 
-grid_canvas.addEventListener("mousedown", (e) => {
+canvas_container.addEventListener("pointerdown", (e) => {
     var mousePos = getCursorPosition(canvas, e);
     previousMouseX = mousePos.x;
     previousMouseY = mousePos.y;
@@ -180,47 +89,218 @@ grid_canvas.addEventListener("mousedown", (e) => {
     dragActive = true;
 });
 
-window.addEventListener("mouseup", () => {dragActive = false;});
+window.addEventListener("pointerup", () => {dragActive = false;});
 
-window.addEventListener("mousemove", (e) => {
+window.addEventListener("pointermove", (e) => {
     var mousePos = getCursorPosition(canvas, e);
     
-    if(!dragActive)
+    if(!dragActive || uploadedImageReference == null)
         return; 
 
-    gridOriginX = gridOriginX - (previousMouseX - mousePos.x);
-    gridOriginY = gridOriginY - (previousMouseY - mousePos.y);
-    originXinput.value = gridOriginX;
-    originYinput.value = gridOriginY;
+    if(grid_grab_toggle) {
+        gridOriginX = gridOriginX - (previousMouseX - mousePos.x);
+        gridOriginY = gridOriginY - (previousMouseY - mousePos.y);
+        // originXinput.value = gridOriginX;
+        // originYinput.value = gridOriginY;
+    
+        grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
+    }
 
-    grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
-
+    if(image_grab_toggle && !lock_toggle_on) {
+        imageOriginX = imageOriginX - ((previousMouseX - mousePos.x) / imageScaling);
+        imageOriginY = imageOriginY - ((previousMouseY - mousePos.y) / imageScaling);
+        // originXinput.value = imageOriginX;
+        // originYinput.value = imageOriginY;
+    
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        displayImage(uploadedImageReference)
+    }
     previousMouseX = mousePos.x;
     previousMouseY = mousePos.y;
 });
 
-// Called after timeout to re-draw image
-function resizedw() {
-    displayImage(uploadedImage);
+canvas_container.addEventListener("wheel", (e) => {
+    if(lock_toggle_on || uploadedImageReference == null)
+        return;
+
+    if(e.deltaY > 0 && imageScaling > imageScalingFactor)
+        imageScaling -= imageScalingFactor;
+    else if(e.deltaY < 0 && imageScaling <= 4)
+        imageScaling += imageScalingFactor;
+    displayImage(uploadedImageReference);        
+});
+// #endregion
+
+//#region ( Sidebar Button Listeners) 
+function image_grab_listener() {
+    image_grab_toggle = !image_grab_toggle;
+
+    image_grab_button.classList.remove("selected");
+    if(image_grab_toggle) {
+        image_grab_button.classList.add("selected");
+
+        grid_grab_toggle = false;
+        grid_grab_button.classList.remove("selected");
+    }
 }
 
-// Calls when image is uploaded
-imageUploadInput.addEventListener("change", () => {
-    const files = imageUploadInput.files;
-    uploadedImage = files[0];
-    displayImage(uploadedImage)
-})
+function grid_grab_listener() {
+    grid_grab_toggle = !grid_grab_toggle;
 
+    grid_grab_button.classList.remove("selected");
+    if(grid_grab_toggle) {
+        grid_grab_button.classList.add("selected");
+
+        image_grab_toggle = false;
+        image_grab_button.classList.remove("selected");
+    }
+}
+
+image_upload_button.addEventListener("change", () => {
+    const files = image_upload_button.files;
+
+    if(uploadedImageReference != files[0])
+        new_image = true; 
+    uploadedImageReference = files[0];
+
+    lock_toggle_button.classList.add("selected");
+    lock_toggle_on = true;
+    
+    displayImage(uploadedImageReference);
+    imageOriginX = 0;
+    imageOriginY = 0;
+    imageScaling = 1;
+});
+
+
+function download_image() {
+    if(lock_toggle_on) {
+        ctx.clearRect(0, 0, centerShift_x, canvas.height);
+        ctx.clearRect(centerShift_x + dWidth, 0, canvas.width, canvas.height);
+    }
+
+    var dataURL = canvas.toDataURL("image/png");
+    // Create a dummy link text
+    var a = document.createElement('a');
+    // Set the link to the image so that when clicked, the image begins downloading
+    a.href = dataURL;
+    // Specify the image filename
+    a.download = 'canvas-download.png';
+    // Click on the link to set off download
+    a.click();
+
+    canvas.width = vw(65);
+    canvas.height = vh(65);
+    displayImage(uploadedImageReference);
+    canvas_container.classList.remove("fullscreen_canvas_container")
+}
+
+ /* 
+ Create a PNG image of the pixels drawn on the 
+ canvas using the toDataURL method. PNG is the 
+ preferred format since it is supported by all browsers
+ */
+var download_timeout;
+function image_download_listener() {
+    if(uploadedImageReference == null)
+        return;
+
+    var previousImageOriginX = imageOriginX;
+    var previousImageOriginY = imageOriginY;
+    var previousImageScaling = imageScaling;
+
+    imageOriginX = 0;
+    imageOriginY = 0;
+    imageScaling = 1; 
+
+
+    canvas_container.classList.add("fullscreen_canvas_container")
+    canvas.width = uploadedImageObject.width;
+    canvas.height = uploadedImageObject.height;
+
+    displayImage(uploadedImageReference);
+
+    clearTimeout(download_timeout);
+    download_timeout = setTimeout(download_image, 250);
+
+    imageOriginX = previousImageOriginX;
+    imageOriginY = previousImageOriginY;
+    imageScaling = previousImageScaling;
+}
+
+function grid_toggle_listener() {
+    console.log("grid_toggle_listener()");
+    
+}
+
+// TODO Add fullscreen functionality
+// function fullscreen_toggle_listener() {
+//     console.log("fullscreen_toggle_listener()");
+// }
+
+// Handling image centering lock toggle
+function lock_toggle_listener() {
+    lock_toggle_on = !lock_toggle_on;
+
+    lock_toggle_button.classList.remove("selected");
+    if(lock_toggle_on)
+        lock_toggle_button.classList.add("selected");
+
+    if(uploadedImageReference != null)
+        displayImage(uploadedImageReference)
+}
+
+function zoom_in_listener() {
+    if(lock_toggle_on || uploadedImageReference == null || imageScaling >= 4)
+        return;
+
+    console.log("Zoom in");
+    imageScaling += imageScalingFactor;
+    displayImage(uploadedImageReference);    
+}
+
+function zoom_out_listener() {
+    if(lock_toggle_on || uploadedImageReference == null || imageScaling <= imageScalingFactor)
+        return;
+
+    console.log("Zoom in");
+    imageScaling -= imageScalingFactor;
+    displayImage(uploadedImageReference); 
+
+    console.log("Zoom out");
+}
+//#endregion
+
+// #region ( Image Handling)
 // Creates new image object and sets its source
 function displayImage(image) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    var uploadedImage = new Image();
-    uploadedImage.onload = () => {
-        drawImageScaled(uploadedImage);
+    if(!new_image) {
+        if(lock_toggle_on)
+            drawImageScaled(uploadedImageObject);
+        else 
+            drawImageNonScaled(uploadedImageObject);
+        return; 
     }
-    uploadedImage.src = URL.createObjectURL(image);
+
+    uploadedImageObject = new Image();
+    uploadedImageObject.onload = () => {
+        if(lock_toggle_on)
+            drawImageScaled(uploadedImageObject);
+        else 
+            drawImageNonScaled(uploadedImageObject);
+    }
+    uploadedImageObject.src = URL.createObjectURL(image);
+    new_image = false;
+}
+
+function drawImageNonScaled(img) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.scale(imageScaling, imageScaling);
+    ctx.drawImage(img, imageOriginX, imageOriginY);
+    ctx.scale(1/imageScaling, 1/imageScaling);
 }
 
 // Scales image to correct aspect ratio and centers it
@@ -241,68 +321,14 @@ function drawImageScaled(img) {
                     img.width*ratio, 
                     img.height*ratio);  
 }
+// #endregion
 
-//  Draws grid based on gap and origin vector
-function drawGrid(gapsize, originX, originY, rectWidth, rectHeight) {
-    
-    gapUnit = gapsize;
-    if(gapUnitsInput.value == "pixels") {
-        gapUnit = gapSize;
-        minGapSize = 25;
-    }
-    else if(gapUnitsInput.value == "inches") {
-        gapUnit = gapSize * 96;
-        minGapSize = 0.25;
-    } 
-    else if(gapUnitsInput.value == "centimeters") {
-        gapUnit = gapSize * 38;
-        minGapSize = 1;
-    }
-    else if(gapUnitsInput.value == "millimeters") {
-        gapUnit = gapSize * 3.8;
-        minGapSize = 10;
-    }
+sidebar.style.height = canvas.height + "px";
 
-    if(gapsize < minGapSize) {
-        gapSize = minGapSize;
-        gapSizeInput.value = minGapSize;
-        drawGrid(gapSize, originX, originY, rectWidth, rectHeight);
-    }
+// Display initial text
+ctx.fillStyle = "white";
+ctx.fillText("Upload Image", (canvas.width / 2) - (ctx.measureText("Upload Image").width / 2), canvas.height/2);
 
-    if(originX >= 0)
-        originX -= (gapUnit*Math.floor(originX / gapUnit)) + gapUnit;
-
-    if(originY >= 0)
-        originY -= (gapUnit*Math.floor(originY / gapUnit)) + gapUnit;
-    
-    var rowX = originX;
-    var rowY = originY;   
-    
-    
-    grid_ctx.lineWidth = lineWeight;
-    grid_ctx.strokeStyle = strokeColor;
-
-    while(rowX < rectWidth) {
-        grid_ctx.beginPath();
-        grid_ctx.moveTo(rowX, originY);
-        grid_ctx.lineTo(rowX, rectHeight);
-        grid_ctx.stroke(); 
-        
-        rowX += gapUnit;
-    }
-
-    while(rowY < rectHeight) {
-        grid_ctx.beginPath();
-        grid_ctx.moveTo(originX, rowY);
-        grid_ctx.lineTo(rectWidth, rowY);
-        grid_ctx.stroke(); 
-        
-        rowY += gapUnit;
-    }
-}
-
-function mergeCanvases() {
-    ctx.drawImage(grid_canvas, 0, 0); 
-    ctx.clearRect();
-}
-
+// Set canvas background to inital dimensions
+background_canvas.style.width = canvas.width + "px";
+background_canvas.style.height = canvas.height + "px";

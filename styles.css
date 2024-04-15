@@ -4,26 +4,55 @@
 }
 
 body {
-    background-color: aquamarine;
+    background-color: #FBF9FF;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    font-family: sans-serif;
 }
 
-.upload {
-    background-color: beige;
+header {
+    padding: 1vh;
+    text-align: center;
+    color: white;
+    background-color: #f96e46;
 }
 
-.download {
-    background-color: aqua;
+#content {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    
+    margin-top: 5vh;
 }
 
-#imageUpload, #downloadBtn {
-    margin: auto;
-    display: block;
-}
-
+/* #region ( Canvas ) */
 #canvas_container {
     position: relative;
     width: max-content;
-    margin: 50px auto 50px auto;
+}
+
+#canvas_container.fullscreen_canvas_container canvas {
+    display: none;
+} 
+
+#canvas_container.fullscreen_canvas_container #background-canvas {
+    position: static;
+} 
+
+canvas {
+    border-radius: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+#background-canvas {
+    top: 0;
+    left: 0;
+    position: absolute;
+    border-radius: 30px;
+    background-color: #000807;
+    border: 3px solid #F96E46;
+    z-index: 0;
 }
 
 #grid_canvas {
@@ -32,14 +61,106 @@ body {
     left: 0;
 }
 
-#canvas {
-    background-color: blueviolet;
+#image_canvas {
+    background-color: #000807;
+    border: 3px solid #F96E46;
 }
+/* #endregion */
 
-.settings {
+/* #region ( Toolbar ) */
+#sidebar {
+    color: white;
     text-align: center;
+    background-color: #000807;
+
+    width: 5em;
+    margin-right: 2vh;
+
+    border-radius: 30px; 
+    border: 3px solid #F96E46;
+    
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
-.settings input {
-    width: 8ch;
+#toolbar {
+    height: 5vh;
+    background-color: #000807;
+    border: 3px solid #F96E46;
+    margin: 2vh auto 0 auto;
+    border-radius: 30px;
+    color: white;
+    padding: 0.5em;
+    display: flex;
 }
+
+.toolbar_option {
+    display: flex;
+    /* background-color: red; */
+    width: max-content;
+    margin-left: 0.75em;
+}
+
+#units {
+    margin-left: 0.75em;
+    text-align: center;
+    border: none;
+    border-radius: 10px;
+    padding: 0 0.75em 0 0.75em;
+}
+
+#units:hover {
+    background-color: #F96E46;
+    color: #FBF9FF;
+}
+
+
+/* #endregion */
+
+/* #region ( Misc ) */
+hr {
+    color: white;
+    width: 75%;
+    margin: 0.75em auto 0 auto
+}
+
+.vertical-hr {
+    width: 1px;
+    height: 100%;
+    background-color: white;
+    margin-left:0.75em;
+}
+/* #endregion */
+
+
+/* #region ( SVG Buttons ) */ 
+svg {
+    width: 100%;
+}
+
+.svg_button:hover + svg {
+    background-color: #f96d466c;
+}
+
+.svg_button.selected + svg {
+    background-color: #f96d466c;
+}
+
+.svg_button_container {
+    position: relative;
+    margin-top: 0.75em;
+}
+
+.svg_button {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    opacity: 0;
+}
+
+#grid-grab-container {
+    position: relative;
+}
+/* #endregion */
