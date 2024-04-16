@@ -232,7 +232,8 @@ function download_image() {
 
     grid_canvas.width = vw(65);
     grid_canvas.height = vh(65);
-    drawGrid(gridOriginX, gridOriginY);
+    if(showGrid)
+        drawGrid(gridOriginX, gridOriginY);
     grid_canvas.classList.remove("fullscreen_canvas_container")
 
     canvas.width = vw(65);
@@ -268,7 +269,8 @@ function image_download_listener() {
     grid_canvas.height = uploadedImageObject.height;
     grid_canvas.classList.add("fullscreen_canvas_container")
 
-    drawGrid(absoluteGridOriginX, absoluteGridOriginY, uploadedImageObject.width, uploadedImageObject.height);
+    if(showGrid)
+        drawGrid(absoluteGridOriginX, absoluteGridOriginY, uploadedImageObject.width, uploadedImageObject.height);
     displayImage(uploadedImageReference);
 
     clearTimeout(download_timeout);
@@ -473,8 +475,9 @@ function drawGrid(originX, originY, rectWidth=grid_canvas.width, rectHeight=grid
     
     grid_ctx.lineWidth = lineWeight;
     grid_ctx.strokeStyle = strokeColor;
-
-    grid_ctx.scale(imageScaling, imageScaling);
+    
+    if(lock_toggle_on)
+        grid_ctx.scale(imageScaling, imageScaling);
     while(rowX < rectWidth/imageScaling) {
         grid_ctx.beginPath();
         grid_ctx.moveTo(rowX, originY);
@@ -492,7 +495,8 @@ function drawGrid(originX, originY, rectWidth=grid_canvas.width, rectHeight=grid
         
         rowY += absoluteGapWidth;
     }
-    grid_ctx.scale(1/imageScaling, 1/imageScaling);
+    if(lock_toggle_on)
+        grid_ctx.scale(1/imageScaling, 1/imageScaling);
 }
 // #endregion
 
