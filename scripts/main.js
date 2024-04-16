@@ -306,8 +306,19 @@ function lock_toggle_listener() {
     if(lock_toggle_on)
         lock_toggle_button.classList.add("selected");
 
+    imageScaling = 1;
+    imageOriginX = 0;
+    imageOriginY = 0;
+    gridOriginX = 0;
+    gridOriginY = 0;
+    absoluteGridOriginX = 0;
+    absoluteGridOriginY = 0;
+    
     if(uploadedImageReference != null)
         displayImage(uploadedImageReference)
+    
+    if(showGrid)
+        drawGrid(gridOriginX, gridOriginY)
 }
 
 function zoom_in_listener() {
@@ -475,9 +486,8 @@ function drawGrid(originX, originY, rectWidth=grid_canvas.width, rectHeight=grid
     
     grid_ctx.lineWidth = lineWeight;
     grid_ctx.strokeStyle = strokeColor;
-    
-    if(lock_toggle_on)
-        grid_ctx.scale(imageScaling, imageScaling);
+
+    grid_ctx.scale(imageScaling, imageScaling);
     while(rowX < rectWidth/imageScaling) {
         grid_ctx.beginPath();
         grid_ctx.moveTo(rowX, originY);
@@ -495,8 +505,7 @@ function drawGrid(originX, originY, rectWidth=grid_canvas.width, rectHeight=grid
         
         rowY += absoluteGapWidth;
     }
-    if(lock_toggle_on)
-        grid_ctx.scale(1/imageScaling, 1/imageScaling);
+    grid_ctx.scale(1/imageScaling, 1/imageScaling);
 }
 // #endregion
 
