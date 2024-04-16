@@ -206,10 +206,15 @@ image_upload_button.addEventListener("change", () => {
     // lock_toggle_button.classList.add("selected");
     // lock_toggle_on = true;
     
-    displayImage(uploadedImageReference);
+    imageScaling = 1;
     imageOriginX = 0;
     imageOriginY = 0;
-    imageScaling = 1;
+    gridOriginX = 0;
+    gridOriginY = 0;
+    absoluteGridOriginX = 0;
+    absoluteGridOriginY = 0;
+
+    displayImage(uploadedImageReference);
 });
 
 function download_image() {
@@ -260,17 +265,20 @@ function image_download_listener() {
     imageOriginY = 0;
     imageScaling = 1; 
 
-
     canvas.width = uploadedImageObject.width;
     canvas.height = uploadedImageObject.height;
     canvas_container.classList.add("fullscreen_canvas_container")
 
+    // if(uploadedImageObject.width > grid_canvas.width)
     grid_canvas.width = uploadedImageObject.width;
+
+    // if(uploadedImageObject.height > grid_canvas.height)
     grid_canvas.height = uploadedImageObject.height;
+
     grid_canvas.classList.add("fullscreen_canvas_container")
 
     if(showGrid)
-        drawGrid(absoluteGridOriginX, absoluteGridOriginY, uploadedImageObject.width, uploadedImageObject.height);
+        drawGrid(absoluteGridOriginX, absoluteGridOriginY);
     displayImage(uploadedImageReference);
 
     clearTimeout(download_timeout);
