@@ -24,7 +24,6 @@ header {
     
     margin-top: 5vh;
 }
-
 /* #region ( Canvas ) */
 #canvas_container {
     position: relative;
@@ -59,6 +58,9 @@ canvas {
     position: absolute;
     top: 0;
     left: 0;
+    border-radius: 30px;
+    border: 3px solid #F96E46;
+
 }
 
 #image_canvas {
@@ -109,6 +111,7 @@ canvas {
     text-align: center;
     margin-left: 0.75em;
     border-radius: 10px;
+    padding: 0 0.5em;
 }
 
 #units:hover {
@@ -134,6 +137,7 @@ input[type="color"] {
 
 input[type="color"]:hover {
     border: 1px solid #F96E46;
+    cursor: pointer;
 }
 
 #color-picker-svg {

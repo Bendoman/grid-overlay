@@ -27,9 +27,12 @@ var image_grab_button = document.getElementById("image_grab_button");
 var lock_toggle_button = document.getElementById("lock_toggle_button");
 var image_upload_button = document.getElementById("image_upload_button");
 
+var grid_toggle_button = document.getElementById("grid_toggle_button");
+
 // Toolbar inputs 
 var unit_selector = document.getElementById("units");
 var gap_width_input = document.getElementById("gap_width_input");
+var gap_weight_input = document.getElementById("gap_weight_input");
 // #endregion
 
 // #region ( Variables )
@@ -48,11 +51,19 @@ var previousMouseY = 0;
 
 var gridOriginX = 0;
 var gridOriginY = 0;
+var absoluteGridOriginX = 0;
+var absoluteGridOriginY = 0;
+
+
 var imageScaling = 1;
 var imageScalingFactor = 0.25;
 
 // Grid values
-var gapSize = 1; 
+var gapWidth = 1; 
+var minGapWidth = 25;
+var absoluteGapWidth = 25; 
+var gapWidthUnits = "pixels";
+
 var lineWeight = 1; 
 var showGrid = false; 
 var strokeColor = "#39FF14";
@@ -82,12 +93,13 @@ window.addEventListener("resize", () => {
     grid_canvas.width = maxWidth;
     grid_canvas.height = maxHeight;
 
-    // drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
-
     toolbar.style.width = canvas.width + "px";
     sidebar.style.height = canvas.height + "px";
     background_canvas.style.width = canvas.width + "px";
     background_canvas.style.height = canvas.height + "px";
+
+    if(showGrid)
+        drawGrid(gridOriginX, gridOriginY);
 
     if(uploadedImageReference == null)
         return; 
@@ -110,27 +122,34 @@ window.addEventListener("pointerup", () => {dragActive = false;});
 window.addEventListener("pointermove", (e) => {
     var mousePos = getCursorPosition(canvas, e);
     
-    if(!dragActive || uploadedImageReference == null)
+    if(!dragActive)
         return; 
 
-    if(grid_grab_toggle) {
-        gridOriginX = gridOriginX - (previousMouseX - mousePos.x);
-        gridOriginY = gridOriginY - (previousMouseY - mousePos.y);
-        // originXinput.value = gridOriginX;
-        // originYinput.value = gridOriginY;
+    if(grid_grab_toggle && showGrid) {
+        gridOriginX = gridOriginX - ((previousMouseX - mousePos.x) / imageScaling);
+        gridOriginY = gridOriginY - ((previousMouseY - mousePos.y) / imageScaling);
+
+        absoluteGridOriginX = absoluteGridOriginX - ((previousMouseX - mousePos.x) / imageScaling);
+        absoluteGridOriginY = absoluteGridOriginY - ((previousMouseY - mousePos.y) / imageScaling);
     
-        grid_ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawGrid(gapSize, gridOriginX, gridOriginY, canvas.width, canvas.height);
+        grid_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+        drawGrid(gridOriginX, gridOriginY);
     }
 
-    if(image_grab_toggle && !lock_toggle_on) {
+    if(image_grab_toggle && !lock_toggle_on && uploadedImageObject != null) {
         imageOriginX = imageOriginX - ((previousMouseX - mousePos.x) / imageScaling);
         imageOriginY = imageOriginY - ((previousMouseY - mousePos.y) / imageScaling);
-        // originXinput.value = imageOriginX;
-        // originYinput.value = imageOriginY;
     
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         displayImage(uploadedImageReference)
+
+        if(showGrid) {
+            gridOriginX = gridOriginX - ((previousMouseX - mousePos.x) / imageScaling);
+            gridOriginY = gridOriginY - ((previousMouseY - mousePos.y) / imageScaling);
+    
+            grid_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+            drawGrid(gridOriginX, gridOriginY);
+        }
     }
     previousMouseX = mousePos.x;
     previousMouseY = mousePos.y;
@@ -144,7 +163,10 @@ canvas_container.addEventListener("wheel", (e) => {
         imageScaling -= imageScalingFactor;
     else if(e.deltaY < 0 && imageScaling <= 4)
         imageScaling += imageScalingFactor;
-    displayImage(uploadedImageReference);        
+    displayImage(uploadedImageReference); 
+    
+    if(showGrid)      
+        drawGrid(gridOriginX, gridOriginY);
 });
 // #endregion
 
@@ -190,6 +212,8 @@ image_upload_button.addEventListener("change", () => {
 });
 
 function download_image() {
+    ctx.drawImage(grid_canvas, 0, 0);
+
     if(lock_toggle_on) {
         ctx.clearRect(0, 0, centerShift_x, canvas.height);
         ctx.clearRect(centerShift_x + dWidth, 0, canvas.width, canvas.height);
@@ -204,6 +228,11 @@ function download_image() {
     a.download = 'canvas-download.png';
     // Click on the link to set off download
     a.click();
+
+    grid_canvas.width = vw(65);
+    grid_canvas.height = vh(65);
+    drawGrid(gridOriginX, gridOriginY);
+    grid_canvas.classList.remove("fullscreen_canvas_container")
 
     canvas.width = vw(65);
     canvas.height = vh(65);
@@ -230,10 +259,15 @@ function image_download_listener() {
     imageScaling = 1; 
 
 
-    canvas_container.classList.add("fullscreen_canvas_container")
     canvas.width = uploadedImageObject.width;
     canvas.height = uploadedImageObject.height;
+    canvas_container.classList.add("fullscreen_canvas_container")
 
+    grid_canvas.width = uploadedImageObject.width;
+    grid_canvas.height = uploadedImageObject.height;
+    grid_canvas.classList.add("fullscreen_canvas_container")
+
+    drawGrid(absoluteGridOriginX, absoluteGridOriginY, uploadedImageObject.width, uploadedImageObject.height);
     displayImage(uploadedImageReference);
 
     clearTimeout(download_timeout);
@@ -244,8 +278,16 @@ function image_download_listener() {
     imageScaling = previousImageScaling;
 }
 
-function grid_toggle_listener() {
-    console.log("grid_toggle_listener()");
+function grid_toggle_listener() { 
+    showGrid = !showGrid; 
+
+    grid_toggle_button.classList.remove("selected");
+    if(showGrid) {
+        drawGrid(gridOriginX, gridOriginY);
+        grid_toggle_button.classList.add("selected");
+    }
+    else 
+        grid_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 }
 
 // TODO Add fullscreen functionality
@@ -269,33 +311,73 @@ function zoom_in_listener() {
     if(lock_toggle_on || uploadedImageReference == null || imageScaling >= 4)
         return;
 
-    console.log("Zoom in");
     imageScaling += imageScalingFactor;
     displayImage(uploadedImageReference);    
+
+    if(showGrid)
+        drawGrid(gridOriginX, gridOriginY);
 }
 
 function zoom_out_listener() {
     if(lock_toggle_on || uploadedImageReference == null || imageScaling <= imageScalingFactor)
         return;
 
-    console.log("Zoom in");
     imageScaling -= imageScalingFactor;
     displayImage(uploadedImageReference); 
 
-    console.log("Zoom out");
+    if(showGrid)
+        drawGrid(gridOriginX, gridOriginY);
 }
 
 // Toolbar Inputs
+unit_selector.addEventListener("change", () => {
+    gapWidthUnits = unit_selector.value;
+
+    setAbsoluteGapWidth(gapWidth, gapWidthUnits);
+
+    gapWidth = gapWidth < minGapWidth ? minGapWidth : gapWidth;
+    gap_width_input.value = gapWidth;
+
+    setAbsoluteGapWidth(gapWidth, gapWidthUnits);
+
+    if(showGrid)
+        drawGrid(gridOriginX, gridOriginY);
+});
+
 gap_width_input.addEventListener("change", () => {
     var value = Math.abs(gap_width_input.value)
-    gapSize = value == 0 ? 1 : value;
-    gap_width_input.value = gapSize;
+    gapWidth = value < minGapWidth ? minGapWidth : value;
+    gap_width_input.value = gapWidth;
+    setAbsoluteGapWidth(gapWidth, gapWidthUnits);
+
+    if(showGrid)
+        drawGrid(gridOriginX, gridOriginY);
+});
+
+gap_weight_input.addEventListener("change", () => {
+    var value = Math.abs(gap_weight_input.value)
+
+    lineWeight = value == 0 ? lineWeight : value; 
+    gap_weight_input.value = lineWeight;
+
+    if(showGrid)
+        drawGrid(gridOriginX, gridOriginY);
+});
+
+colour_picker_input.addEventListener("change", () => {
+    strokeColor = colour_picker_input.value;
+
+    if(showGrid)
+        drawGrid(gridOriginX, gridOriginY);
 });
 //#endregion
 
 // #region ( Image Handling )
 // Creates new image object and sets its source
 function displayImage(image) {
+    if(image == null)
+        return;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if(!new_image) {
@@ -346,37 +428,43 @@ function drawImageScaled(img) {
 
 // #region ( Grid Handling )
 //  Draws grid based on gap and origin vector
-function drawGrid(gapsize, originX, originY, rectWidth, rectHeight) {
-    
-    gapUnit = gapsize;
-    if(gapUnitsInput.value == "pixels") {
-        gapUnit = gapSize;
-        minGapSize = 25;
+function setAbsoluteGapWidth(gap, units) {  
+    absoluteGapWidth = gap;
+    switch(units) {
+        case "pixels":
+            absoluteGapWidth = gap;
+            minGapWidth = 25;
+            break;
+        case "inches":
+            absoluteGapWidth = gap * 96;
+            minGapWidth = 0.25;
+            break;
+        case "centimeters":
+            absoluteGapWidth = gap * 38;
+            minGapWidth = 1;
+            break;
+        case "millimeters":
+            absoluteGapWidth = gap * 3.8;
+            minGapWidth = 10;
+            break;
+        default:
+            console.error("Invalid unit type provided");
     }
-    else if(gapUnitsInput.value == "inches") {
-        gapUnit = gapSize * 96;
-        minGapSize = 0.25;
-    } 
-    else if(gapUnitsInput.value == "centimeters") {
-        gapUnit = gapSize * 38;
-        minGapSize = 1;
-    }
-    else if(gapUnitsInput.value == "millimeters") {
-        gapUnit = gapSize * 3.8;
-        minGapSize = 10;
-    }
+}
 
-    if(gapsize < minGapSize) {
-        gapSize = minGapSize;
-        gapSizeInput.value = minGapSize;
-        drawGrid(gapSize, originX, originY, rectWidth, rectHeight);
-    }
+function drawGrid(originX, originY, rectWidth=grid_canvas.width, rectHeight=grid_canvas.height) {
+    grid_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+
+    // if(!lock_toggle_on && uploadedImageObject != null) {
+    //     rectWidth = uploadedImageObject.width;
+    //     rectHeight = uploadedImageObject.height;
+    // }
 
     if(originX >= 0)
-        originX -= (gapUnit*Math.floor(originX / gapUnit)) + gapUnit;
+        originX -= (absoluteGapWidth*Math.floor(originX / absoluteGapWidth)) + absoluteGapWidth;
 
     if(originY >= 0)
-        originY -= (gapUnit*Math.floor(originY / gapUnit)) + gapUnit;
+        originY -= (absoluteGapWidth*Math.floor(originY / absoluteGapWidth)) + absoluteGapWidth;
     
     var rowX = originX;
     var rowY = originY;   
@@ -385,23 +473,25 @@ function drawGrid(gapsize, originX, originY, rectWidth, rectHeight) {
     grid_ctx.lineWidth = lineWeight;
     grid_ctx.strokeStyle = strokeColor;
 
-    while(rowX < rectWidth) {
+    grid_ctx.scale(imageScaling, imageScaling);
+    while(rowX < rectWidth/imageScaling) {
         grid_ctx.beginPath();
         grid_ctx.moveTo(rowX, originY);
-        grid_ctx.lineTo(rowX, rectHeight);
+        grid_ctx.lineTo(rowX, rectHeight/imageScaling);
         grid_ctx.stroke(); 
         
-        rowX += gapUnit;
+        rowX += absoluteGapWidth;
     }
-
-    while(rowY < rectHeight) {
+    
+    while(rowY < rectHeight/imageScaling) {
         grid_ctx.beginPath();
         grid_ctx.moveTo(originX, rowY);
-        grid_ctx.lineTo(rectWidth, rowY);
+        grid_ctx.lineTo(rectWidth/imageScaling, rowY);
         grid_ctx.stroke(); 
         
-        rowY += gapUnit;
+        rowY += absoluteGapWidth;
     }
+    grid_ctx.scale(1/imageScaling, 1/imageScaling);
 }
 // #endregion
 
