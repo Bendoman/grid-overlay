@@ -202,8 +202,9 @@ image_upload_button.addEventListener("change", () => {
         new_image = true; 
     uploadedImageReference = files[0];
 
-    lock_toggle_button.classList.add("selected");
-    lock_toggle_on = true;
+    // Not sure if having aspect ratio toggle on by default is good
+    // lock_toggle_button.classList.add("selected");
+    // lock_toggle_on = true;
     
     displayImage(uploadedImageReference);
     imageOriginX = 0;
@@ -427,7 +428,6 @@ function drawImageScaled(img) {
 // #endregion
 
 // #region ( Grid Handling )
-//  Draws grid based on gap and origin vector
 function setAbsoluteGapWidth(gap, units) {  
     absoluteGapWidth = gap;
     switch(units) {
@@ -452,6 +452,7 @@ function setAbsoluteGapWidth(gap, units) {
     }
 }
 
+//  Draws grid based on gap and origin vector
 function drawGrid(originX, originY, rectWidth=grid_canvas.width, rectHeight=grid_canvas.height) {
     grid_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
 
