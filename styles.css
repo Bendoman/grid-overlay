@@ -15,6 +15,7 @@ header {
     text-align: center;
     color: white;
     background-color: #f96e46;
+    font-family: "Roboto", sans-serif;
 }
 
 #content {
@@ -24,6 +25,7 @@ header {
     
     margin-top: 5vh;
 }
+
 /* #region ( Canvas ) */
 #canvas_container {
     position: relative;
@@ -42,6 +44,10 @@ canvas {
     border-radius: 30px;
     position: relative;
     z-index: 1;
+}
+
+canvas:hover {
+    cursor: grab;
 }
 
 #background-canvas {
@@ -81,7 +87,7 @@ canvas {
     border-radius: 30px; 
     border: 3px solid #F96E46;
     
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
 }
 
@@ -95,7 +101,7 @@ canvas {
     padding: 0.75em 0;
     display: flex;
 
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 .toolbar_option {
@@ -128,16 +134,40 @@ input[type="number"] {
     margin-left: 0.75em;
 }
 
-input[type="color"] {
+#stroke_alpha_input {
+    width: 8em;
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+
+/* DEPRECATED */
+/* input[type="color"] {
     border: none;
     width: 5em;
     height: 3vh;
     border-radius: 10px;
+    opacity: 0;
 }
 
 input[type="color"]:hover {
     border: 1px solid #F96E46;
     cursor: pointer;
+} */
+
+input[type="color"] {
+    opacity: 0;
+}
+
+#color_picker_empty_div {
+    border-radius: 10px;
+    width: 5em;
+    height: 3vh;
+    background-color: #39FF14;
+}
+
+#color_picker_empty_div:hover {
+    border: 3px solid #F96E46;
+
 }
 
 #color-picker-svg {
@@ -182,7 +212,7 @@ svg {
 }
 
 .svg_button.selected + svg {
-    background-color: #f96d466c;
+    background-color: #f96d46b4;
 }
 
 .svg_button_container {
