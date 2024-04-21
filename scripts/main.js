@@ -1,6 +1,7 @@
 // Canvas setup
 var canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('image_canvas'));
 var grid_canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('grid_canvas'));
+var canvas_upload = document.getElementById("canvas_upload");
 
 var ctx = canvas.getContext("2d");
 var grid_ctx = grid_canvas.getContext("2d");
@@ -13,13 +14,15 @@ canvas.height = maxHeight;
 grid_canvas.width = maxWidth;
 grid_canvas.height = maxHeight;
 
+canvas_upload.style.width = maxWidth + "px";
+canvas_upload.style.height = maxHeight + "px";
+
 // #region ( Elements )
 var sidebar = document.getElementById("sidebar");
 var toolbar = document.getElementById("toolbar");
 
 var canvas_container = document.getElementById("canvas_container");
 var background_canvas = document.getElementById("background-canvas");
-var canvas_upload = document.getElementById("canvas_upload");
 
 // Sidebar buttons
 var grid_grab_button = document.getElementById("grid_grab_button");
@@ -98,6 +101,11 @@ window.addEventListener("resize", () => {
     grid_canvas.width = maxWidth;
     grid_canvas.height = maxHeight;
 
+    if(canvas_upload != null) {
+        canvas_upload.style.width = maxWidth + "px";
+        canvas_upload.style.height = maxHeight + "px";
+    }
+
     toolbar.style.width = canvas.width + "px";
     sidebar.style.height = canvas.height + "px";
     background_canvas.style.width = canvas.width + "px";
@@ -105,6 +113,11 @@ window.addEventListener("resize", () => {
 
     if(showGrid)
         drawGrid(gridOriginX, gridOriginY);
+
+    if(uploadedImageReference == null) {
+        drawText();
+        return; 
+    }
 
     clearTimeout(timeout);
     timeout = setTimeout(redrawImage, 250);
@@ -121,6 +134,11 @@ canvas_container.addEventListener("pointerdown", (e) => {
 
     dragActive = true;
 });
+
+// canvas_upload.addEventListener("click", (e) => {
+//     if(uploadedImageReference == null && !showGrid)
+//         image_upload_button.click();    
+// });
 
 window.addEventListener("pointerup", (e) => {
     dragActive = false;
@@ -209,7 +227,17 @@ function grid_grab_listener() {
 
 image_upload_button.addEventListener("change", () => {
     const files = image_upload_button.files;
+    handle_upload(files);
+});
 
+canvas_upload.addEventListener("change", () => {
+    const files = canvas_upload.files;
+    handle_upload(files);
+    canvas_upload.remove();
+    canvas_upload = null;
+});
+
+function handle_upload(files) {
     if(uploadedImageReference != files[0])
         new_image = true; 
     uploadedImageReference = files[0];
@@ -217,7 +245,7 @@ image_upload_button.addEventListener("change", () => {
     // Not sure if having aspect ratio toggle on by default is good
     lock_toggle_button.classList.add("selected");
     lock_toggle_on = true;
-    
+
     imageScaling = 1;
     imageOriginX = 0;
     imageOriginY = 0;
@@ -227,7 +255,7 @@ image_upload_button.addEventListener("change", () => {
     absoluteGridOriginY = 0;
 
     displayImage(uploadedImageReference);
-});
+}
 
 function download_image() {
     ctx.drawImage(grid_canvas, 0, 0);
@@ -259,6 +287,9 @@ function download_image() {
     canvas.height = vh(65);
     displayImage(uploadedImageReference);
     canvas_container.classList.remove("fullscreen_canvas_container")
+
+    if(uploadedImageReference == null) 
+        drawText();
 }
 
  /* 
@@ -301,13 +332,8 @@ function image_download_listener() {
     // img.width*ratio,
     // img.height*ratio
     if(lock_toggle_on && showGrid) {
-        console.log("LOCK TOGGLE ON RATIO: ", ratio);
         imageScaling = 1/ratio;
-
-
-        console.log(centerShift_x, centerShift_y);
-        drawGrid(absoluteGridOriginX - centerShift_x, absoluteGridOriginY - centerShift_y);
-     
+        drawGrid(absoluteGridOriginX - centerShift_x, absoluteGridOriginY - centerShift_y);    
     } else if(showGrid) {
         drawGrid(absoluteGridOriginX, absoluteGridOriginY);
     }
@@ -331,6 +357,8 @@ function grid_toggle_listener() {
     }
     else 
         grid_ctx.clearRect(0, 0, grid_canvas.width, grid_canvas.height);
+
+    drawText();
 }
 
 // TODO Add fullscreen functionality
@@ -387,11 +415,8 @@ function zoom_out_listener() {
 unit_selector.addEventListener("change", () => {
     gapWidthUnits = unit_selector.value;
 
-    console.log("Gap width: ", gapWidth, "\nAbsolute gap width: ", absoluteGapWidth, "min gap", minGapWidth);
-
     setAbsoluteGapWidth(gapWidth, gapWidthUnits);
 
-    console.log("Gap width: ", gapWidth, "\nAbsolute gap width: ", absoluteGapWidth, "min gap", minGapWidth);
     gapWidth = gapWidth < minGapWidth ? minGapWidth : gapWidth;
     gap_width_input.value = gapWidth;
 
@@ -406,8 +431,6 @@ gap_width_input.addEventListener("change", () => {
     gapWidth = value < minGapWidth ? minGapWidth : value;
     gap_width_input.value = gapWidth;
     setAbsoluteGapWidth(gapWidth, gapWidthUnits);
-
-    console.log(gapWidth, absoluteGapWidth, gapWidthUnits);
 
     if(showGrid)
         drawGrid(gridOriginX, gridOriginY);
@@ -482,12 +505,7 @@ function drawImageScaled(img) {
     centerShift_x = ( canvas.width - img.width*ratio ) / 2;
     centerShift_y = ( canvas.height - img.height*ratio ) / 2;  
     dWidth = img.width*ratio;
-    console.log(ratio,img.width, 
-        img.height,
-        centerShift_x,
-        centerShift_y,
-        img.width*ratio, 
-        img.height*ratio);
+
     // Image
     ctx.clearRect(0,0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, 
@@ -576,3 +594,20 @@ sidebar.style.height = canvas.height + "px";
 toolbar.style.width = canvas.width + "px";
 background_canvas.style.width = canvas.width + "px";
 background_canvas.style.height = canvas.height + "px";
+
+drawText();
+function drawText() {
+    var em = parseFloat(getComputedStyle(canvas).fontSize);
+
+    if(uploadedImageReference != null)
+        return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if(!showGrid) {
+        ctx.fillStyle = "white";
+        // ctx.strk = 2*em;
+        ctx.font = `${1 * em}px "Roboto", sans-serif`;
+        ctx.fillText("Upload Image", (canvas.width / 2) - (ctx.measureText("Upload Image").width / 2), canvas.height/2);
+    }
+}

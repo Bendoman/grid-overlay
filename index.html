@@ -3,12 +3,34 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        
+        <meta name="description" content="Tool for overlaying customizable grids onto images. No signup or download required, mobile compatible.">
+
+
+        <!-- Facebok Meta Tags-->
+        <meta property="og:url" contect="https://gridimageoverlay.com">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Grid Overlay Tool">
+        <!-- <meta property="og:" content="">
+        <meta property="og:" content="">
+        <meta property="og:" content="">
+        <meta property="og:" content="">
+        <meta property="og:" content="">
+        <meta property="og:" content="">
+        <meta property="og:" content="">
+        <meta property="og:" content="">
+        <meta property="og:" content="">
+        <meta property="og:" content=""> -->
+
+        <!-- Font Links -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+        <!----------------->
+
         <link rel="stylesheet" href="styles.css">
-        <meta name="author" content="bendavcorr@gmail.com">
-        <title>Grid Overlay</title>
+        <meta name="author" content="Ben Corran">
+        <title>Grid Overlay Tool</title>
     </head>
     <body>
         <header>
@@ -100,9 +122,10 @@
             </div>  
             <div id="canvas_toolbar_container">
                 <div id="canvas_container" >   
+                    <input type="file" id="canvas_upload">
                     <canvas id="image_canvas"></canvas>
-                    <div id="background-canvas"></div>         
                     <canvas id="grid_canvas"></canvas>
+                    <div id="background-canvas"></div>         
                 </div>
     
                 <div id="toolbar">

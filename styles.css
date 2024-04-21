@@ -12,15 +12,16 @@ body {
 
 header {
     padding: 1vh;
-    text-align: center;
+    padding-left: 2vw;
+    /* text-align: center; */
     color: white;
     background-color: #f96e46;
     font-family: "Roboto", sans-serif;
     /* display: flex;
     justify-content: center;
     align-items: center; */
-    position: relative;
-    
+    /* position: relative; 
+    */
 }
 
 /* TODO Add help page */
@@ -83,7 +84,19 @@ canvas:hover {
     left: 0;
     border-radius: 30px;
     border: 3px solid #F96E46;
+}
 
+#canvas_upload {
+    background-color: red;
+    position: absolute;
+    z-index: 2;
+    opacity: 0;
+    border-radius: 30px;
+    border: 3px solid #F96E46;
+}
+
+#canvas_upload:hover {
+    cursor: grab;
 }
 
 #image_canvas {
