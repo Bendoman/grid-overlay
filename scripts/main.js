@@ -19,6 +19,7 @@ var toolbar = document.getElementById("toolbar");
 
 var canvas_container = document.getElementById("canvas_container");
 var background_canvas = document.getElementById("background-canvas");
+var canvas_upload = document.getElementById("canvas_upload");
 
 // Sidebar buttons
 var grid_grab_button = document.getElementById("grid_grab_button");
@@ -43,7 +44,6 @@ var uploadedImageReference = null;
 var uploadedImageObject = null;
 
 // var image_grab_toggle = true;
-var beforeFirstTouch = true;
 var grid_grab_toggle = false; 
 var new_image = true;
 
@@ -106,11 +106,6 @@ window.addEventListener("resize", () => {
     if(showGrid)
         drawGrid(gridOriginX, gridOriginY);
 
-    if(uploadedImageReference == null) {
-        drawText();
-        return; 
-    }
-
     clearTimeout(timeout);
     timeout = setTimeout(redrawImage, 250);
 });
@@ -126,14 +121,6 @@ canvas_container.addEventListener("pointerdown", (e) => {
 
     dragActive = true;
 });
-
-window.addEventListener("pointerdown", (e) => {
-    if(beforeFirstTouch) {
-        beforeFirstTouch = false; 
-        drawText();
-    }
-});
-
 
 window.addEventListener("pointerup", (e) => {
     dragActive = false;
@@ -272,9 +259,6 @@ function download_image() {
     canvas.height = vh(65);
     displayImage(uploadedImageReference);
     canvas_container.classList.remove("fullscreen_canvas_container")
-
-    if(uploadedImageReference == null) 
-        drawText();
 }
 
  /* 
@@ -588,27 +572,7 @@ function drawGrid(originX, originY, rectWidth=grid_canvas.width, rectHeight=grid
 
 sidebar.style.height = canvas.height + "px";
 
-
-
 // Set toolbar and canvas background to inital dimensions
 toolbar.style.width = canvas.width + "px";
 background_canvas.style.width = canvas.width + "px";
 background_canvas.style.height = canvas.height + "px";
-
-drawText();
-
-function drawText() {
-    var em = parseFloat(getComputedStyle(canvas).fontSize);
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.fillStyle = "white";
-    // ctx.strk = 2*em;
-    ctx.font = `${1 * em}px "Roboto", sans-serif`;
-    ctx.fillText("Upload Image", (canvas.width / 2) - (ctx.measureText("Upload Image").width / 2), canvas.height/2);
-
-    if(beforeFirstTouch) {
-        ctx.fillText("←  TOGGLE GRID", 2*em, 2.75*em);
-        ctx.fillText("←  MOVE GRID", 2*em, 7.25*em);
-    }
-}

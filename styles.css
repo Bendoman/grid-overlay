@@ -16,7 +16,24 @@ header {
     color: white;
     background-color: #f96e46;
     font-family: "Roboto", sans-serif;
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
+    position: relative;
+    
 }
+
+/* TODO Add help page */
+/* #help-bar {
+    padding: 1vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#help-bar:hover {
+    background-color: red;
+} */
 
 #content {
     display: flex;
@@ -73,6 +90,7 @@ canvas:hover {
     background-color: #000807;
     border: 3px solid #F96E46;
 }
+
 /* #endregion */
 
 /* #region ( Toolbar ) */
@@ -81,7 +99,7 @@ canvas:hover {
     text-align: center;
     background-color: #000807;
 
-    width: 5em;
+    width: 5.5em;
     margin-right: 2vh;
 
     border-radius: 30px; 
@@ -200,6 +218,11 @@ hr {
     max-height: 48px;
     max-width: 48px;
 }
+
+h4 {
+    font-size: 0.6em;
+}
+
 /* #endregion */
 
 /* #region ( SVG Buttons ) */ 
