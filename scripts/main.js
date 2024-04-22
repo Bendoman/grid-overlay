@@ -45,6 +45,7 @@ var color_picker_empty_div = document.getElementById("color_picker_empty_div");
 // #region ( Variables )
 var uploadedImageReference = null;
 var uploadedImageObject = null;
+var canvas_upload_disabled = false;
 
 // var image_grab_toggle = true;
 var grid_grab_toggle = false; 
@@ -79,8 +80,6 @@ var lineWeight = 1;
 var showGrid = false; 
 var strokeColor = "#39FF14";
 var strokeAlpha = 1; 
-
-
 // #endregion
 
 // #region ( Event Listeners )
@@ -351,6 +350,10 @@ function image_download_listener() {
 
 function grid_toggle_listener() { 
     showGrid = !showGrid; 
+    canvas_upload_disabled = !canvas_upload_disabled;
+
+    canvas_upload.disabled = canvas_upload_disabled;
+    console.log(canvas_upload.disabled);
 
     grid_toggle_button.classList.remove("selected");
     if(showGrid) {
