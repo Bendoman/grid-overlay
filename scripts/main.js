@@ -228,6 +228,8 @@ function grid_grab_listener() {
 image_upload_button.addEventListener("change", () => {
     const files = image_upload_button.files;
     handle_upload(files);
+    canvas_upload.remove();
+    canvas_upload = null;
 });
 
 canvas_upload.addEventListener("change", () => {
