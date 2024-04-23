@@ -349,12 +349,14 @@ function image_download_listener() {
 }
 
 function grid_toggle_listener() { 
+    console.log("hit toggle");
     showGrid = !showGrid; 
-    canvas_upload_disabled = !canvas_upload_disabled;
 
-    canvas_upload.disabled = canvas_upload_disabled;
-    console.log(canvas_upload.disabled);
-
+    if(canvas_upload != null) {
+        canvas_upload_disabled = !canvas_upload_disabled;
+        canvas_upload.disabled = canvas_upload_disabled;
+    }
+    
     grid_toggle_button.classList.remove("selected");
     if(showGrid) {
         drawGrid(gridOriginX, gridOriginY);
