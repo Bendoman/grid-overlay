@@ -1,5 +1,6 @@
 Utility for adding customizable grids to images. Useful for creating reference images for art.
-![image](https://github.com/user-attachments/assets/f11f650d-69a7-4685-a01d-2899afc07a0e)
+![image](https://github.com/user-attachments/assets/f0c88765-b669-4829-ac02-1f19854abc33)
+
 
 # Usage
 - Drag and drop an image to upload, or click on "Upload Image" box.  
