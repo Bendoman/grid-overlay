@@ -1,6 +1,8 @@
 <!DOCTYPE html>
     <html lang="en">
     <head>
+        <!-- TODO: -->
+        <!-- Fix cover image aspect ratio -->
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">        
         <meta name="description" content="Lightweight tool for overlaying customizable grids onto images. You can adjust the colour, 
@@ -45,7 +47,7 @@
         <link rel="stylesheet" href="styles.css">
         <link rel="icon" href="images/icon.ico">
         <meta name="author" content="Ben Corran">
-        <title>Grid Overlay Tool</title>
+        <title>Free Grid Overlay Tool for Artists - Add Custom Grids to Any Image</title>
     </head>
     <body>
         <header>
@@ -53,7 +55,34 @@
             <!-- <section id="help-bar">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-help"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
             </section>   -->
-            <h1> GRID OVERLAY </h1>
+            <div id="header_top">
+                <h1> GRID OVERLAY TOOL </h1>
+                
+                <!-- <div class="button_container">
+                    <a title="About" id="question_button" >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-help-circle"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>                        
+                    </a>
+                </div> -->
+
+                <div class="button_container">
+                    <a href="https://ko-fi.com/bendoman" id="support_button">
+                        <!-- <button id="support_button"> -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-dollar-sign"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Support
+                        <!-- </button> -->
+                    </a>
+                </div>
+
+                <form action="https://api.web3forms.com/submit" method="POST" id="feedback_form">
+                    <input type="hidden" name="access_key" value="e00a4e59-ef5e-4304-a8b0-be86f34ce8dd">
+                    <textarea rows="3" cols="3" name="message" required></textarea>
+                    <button type="submit">Submit Feedback</button>
+                </form>
+            </div>
+
+            <div id="header_bottom">
+                <p>Add fully customizable grids to any image using any unit of measurement. Free forever, no signup.</p>
+            </div>
         </header>
         
         <div id="content">

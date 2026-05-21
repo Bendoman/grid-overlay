@@ -13,16 +13,121 @@ body {
 header {
     padding: 1vh;
     padding-left: 2vw;
+    padding-right: 2vw;
     /* text-align: center; */
     color: white;
     background-color: #f96e46;
     font-family: "Roboto", sans-serif;
+    
+    display: flex;
+    flex-direction: column;
+    gap: .25em;
     /* display: flex;
     justify-content: center;
     align-items: center; */
     /* position: relative; 
     */
 }
+
+#header_top {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+}
+
+#header_top h1 {
+    /* padding-right: .5em; */
+    /* border-right: 1px solid white; */
+}
+
+.button_container {
+    /* background-color: red; */
+    border-left: 1px solid white;
+    padding-left: 1em;
+}
+
+#question_button {
+    display: flex;
+    align-items: center;
+    padding: .25em;
+    border-radius: 7px;
+}
+
+#question_button:hover {
+    color: black;
+    background-color: white;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:visited {
+    text-decoration: none;
+    color: inherit;
+    cursor: auto;
+}
+
+#support_button {
+    background: none;
+    border: none;
+
+    color: white;
+
+    display: flex;
+    align-items: center;
+    padding: .25em;
+    border-radius: 7px;
+}
+
+#support_button:hover {
+    color: black;
+    cursor: pointer;
+    background-color: white;
+}
+
+
+#header_bottom p {
+    font-size: .75em;
+}
+
+#feedback_form {
+    margin-bottom: -1%;
+    right: 2em;
+    /* background-color: red; */
+    display: flex;
+    flex-direction: column;
+    gap: .15em;
+    margin-left: auto;
+}
+
+textarea {
+    resize: none;
+    border: 1px solid black;
+}
+
+button[type="submit"] {
+    border: none;
+    background: none;
+    
+    border: 1px solid white;
+    /* border-top: none; */
+    border-radius: 5px;
+    /* border-bottom-left-radius: 5px; */
+    /* border-bottom-right-radius: 5px; */
+
+    color: white;
+    font-weight: bolder;
+    font-size: .65em;
+    padding: .25em;
+}
+
+button[type="submit"]:hover {
+    color: black;
+    background-color: white;
+    border: 1px solid black;
+}
+
 
 /* TODO Add help page */
 /* #help-bar {
@@ -73,7 +178,7 @@ canvas:hover {
     left: 0;
     position: absolute;
     border-radius: 30px;
-    background-color: #000807;
+    background-color: black;
     border: 3px solid #F96E46;
     z-index: 0;
 }
@@ -100,7 +205,7 @@ canvas:hover {
 }
 
 #image_canvas {
-    background-color: #000807;
+    background-color: black;
     border: 3px solid #F96E46;
 }
 
@@ -110,7 +215,7 @@ canvas:hover {
 #sidebar {
     color: white;
     text-align: center;
-    background-color: #000807;
+    background-color: black;
 
     width: 5.5em;
     margin-right: 2vh;
@@ -124,7 +229,7 @@ canvas:hover {
 
 #toolbar {
     height: 3em;
-    background-color: #000807;
+    background-color: black;
     border: 3px solid #F96E46;
     margin: 2vh auto 0 auto;
     border-radius: 30px;

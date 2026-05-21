@@ -134,6 +134,18 @@ canvas_container.addEventListener("pointerdown", (e) => {
     dragActive = true;
 });
 
+canvas.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+});
+
+grid_canvas.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+});
+
+background_canvas.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+});
+
 // canvas_upload.addEventListener("click", (e) => {
 //     if(uploadedImageReference == null && !showGrid)
 //         image_upload_button.click();    
