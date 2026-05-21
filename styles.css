@@ -91,14 +91,18 @@ a:visited {
     font-size: .75em;
 }
 
+#feedback_container {
+    margin-left: auto;
+}
+
 #feedback_form {
-    margin-bottom: -1%;
+    /* margin-bottom: -1%; */
     right: 2em;
     /* background-color: red; */
     display: flex;
     flex-direction: column;
     gap: .15em;
-    margin-left: auto;
+    transform: translateY(12%);
 }
 
 textarea {
